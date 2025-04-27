@@ -67,104 +67,165 @@ export default function NavBar({ drawerWidth = 240 }) {
     navigate('/login');
   };
 
+  // Background image styles
+  const backgroundStyles = {
+    backgroundImage: 'url(https://example.com/your-background-image.jpg)', // Replace with your image URL
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    backgroundAttachment: 'fixed',
+    minHeight: '100vh'
+  };
+
+  // Container styles for auth pages (login/register)
+  const authContainerStyles = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: 'calc(100vh - 64px)',
+    padding: theme.spacing(3),
+    [theme.breakpoints.down('sm')]: {
+      padding: theme.spacing(2)
+    }
+  };
+
+  // Content wrapper styles
+  const contentWrapperStyles = {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[4],
+    padding: theme.spacing(4),
+    maxWidth: 500,
+    width: '100%',
+    [theme.breakpoints.down('sm')]: {
+      padding: theme.spacing(3)
+    }
+  };
+
+  // Check if current route is auth page
+  const isAuthPage = ['/login', '/create'].includes(location.pathname);
+
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', ...(isAuthPage && backgroundStyles) }}>
       <CssBaseline />
 
-      <AppBar 
-        position="fixed" 
-        sx={{ 
-          zIndex: theme.zIndex.drawer + 1,
-          ml: { sm: `${drawerWidth}px` },
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          backgroundColor: '#ffffff'
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            edge="start"
-            onClick={handleDrawerToggle}
+      {!isAuthPage && (
+        <>
+          <AppBar 
+            position="fixed" 
             sx={{ 
-              mr: 2, 
-              display: { sm: 'none' },
-              color: '#1976d2'
+              zIndex: theme.zIndex.drawer + 1,
+              ml: { sm: `${drawerWidth}px` },
+              width: { sm: `calc(100% - ${drawerWidth}px)` },
+              backgroundColor: theme.palette.background.paper,
+              boxShadow: 'none',
+              borderBottom: `1px solid ${theme.palette.divider}`
             }}
           >
-            {open ? <CloseIcon /> : <MenuIcon />}
-          </IconButton>
-          <Typography 
-            variant="h6" 
-            noWrap 
-            component="div"
-            sx={{ 
-              color: '#1976d2',
-              fontWeight: 'bold' 
-            }}
-          >
-            Smart Waste Management
-          </Typography>
-        </Toolbar>
-      </AppBar>
+            <Toolbar>
+              <IconButton
+                edge="start"
+                onClick={handleDrawerToggle}
+                sx={{ 
+                  mr: 2, 
+                  display: { sm: 'none' },
+                  color: theme.palette.primary.main
+                }}
+              >
+                {open ? <CloseIcon /> : <MenuIcon />}
+              </IconButton>
+              <Typography 
+                variant="h6" 
+                noWrap 
+                component="div"
+                sx={{ 
+                  color: theme.palette.primary.main,
+                  fontWeight: 'bold',
+                  flexGrow: 1
+                }}
+              >
+                Smart Waste Management
+              </Typography>
+            </Toolbar>
+          </AppBar>
 
-      <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
-        <Drawer
-          variant={isMobile ? 'temporary' : 'permanent'}
-          open={open}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              borderRight: 'none'
-            }
-          }}
-        >
-          <Toolbar />
-          <List>
-            {user ? (
-              <>
-                <NavigationItem to="/dashboard" icon={<HomeIcon />} text="Dashboard" />
+          <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
+            <Drawer
+              variant={isMobile ? 'temporary' : 'permanent'}
+              open={open}
+              onClose={handleDrawerToggle}
+              ModalProps={{ keepMounted: true }}
+              sx={{
+                '& .MuiDrawer-paper': {
+                  width: drawerWidth,
+                  boxSizing: 'border-box',
+                  borderRight: 'none',
+                  backgroundColor: theme.palette.background.paper
+                }
+              }}
+            >
+              <Toolbar />
+              <List>
+                {user ? (
+                  <>
+                    <NavigationItem to="/dashboard" icon={<HomeIcon />} text="Dashboard" />
 
-                {user.user_role === 'Admin' && (
-                  <NavigationItem to="/admin-dashboard" icon={<UserManagementIcon />} text="Dashboard"/>
+                    {user.user_role === 'Admin' && (
+                      <NavigationItem to="/admin-dashboard" icon={<UserManagementIcon />} text="Admin Dashboard"/>
+                    )}
+
+                    {['Clerk', 'Manager'].includes(user.user_role) && (
+                      <NavigationItem to="/collections" icon={<AssignmentIcon />} text="Collections" />
+                    )}
+
+                    <NavigationItem to="/profile" icon={<PersonIcon />} text="My Profile" />
+
+                    <ListItemButton 
+                      onClick={handleLogout} 
+                      sx={{ 
+                        color: theme.palette.error.main,
+                        '&:hover': {
+                          backgroundColor: theme.palette.action.hover
+                        }
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'inherit' }}><LogoutIcon /></ListItemIcon>
+                      <ListItemText primary="Logout" />
+                    </ListItemButton>
+                  </>
+                ) : (
+                  <>
+                    <NavigationItem to="/login" icon={<LoginIcon />} text="Login" />
+                    <NavigationItem to="/create" icon={<SignupIcon />} text="Create Account" />
+                  </>
                 )}
-
-                {['Clerk', 'Manager'].includes(user.user_role) && (
-                  <NavigationItem to="/collections" icon={<AssignmentIcon />} text="Collections" />
-                )}
-
-                {/* Added Profile link here */}
-                <NavigationItem to="/profile" icon={<PersonIcon />} text="My Profile" />
-
-                <ListItemButton onClick={handleLogout} sx={{ color: 'error.main' }}>
-                  <ListItemIcon sx={{ color: 'inherit' }}><LogoutIcon /></ListItemIcon>
-                  <ListItemText primary="Logout" />
-                </ListItemButton>
-              </>
-            ) : (
-              <>
-                <NavigationItem to="/login" icon={<LoginIcon />} text="Login" />
-                <NavigationItem to="/create" icon={<SignupIcon />} text="Create Account" />
-              </>
-            )}
-            <NavigationItem to="/about" icon={<InfoIcon />} text="About" />
-          </List>
-        </Drawer>
-      </Box>
+                <NavigationItem to="/about" icon={<InfoIcon />} text="About" />
+              </List>
+            </Drawer>
+          </Box>
+        </>
+      )}
 
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-          mt: '64px',
-          minHeight: 'calc(100vh - 64px)'
+          p: isAuthPage ? 0 : 3,
+          width: { sm: `calc(100% - ${isAuthPage ? 0 : drawerWidth}px)` },
+          ml: { sm: `${isAuthPage ? 0 : drawerWidth}px` },
+          mt: isAuthPage ? 0 : '64px',
+          minHeight: isAuthPage ? '100vh' : 'calc(100vh - 64px)'
         }}
       >
-        <Outlet />
+        {isAuthPage ? (
+          <Box sx={authContainerStyles}>
+            <Box sx={contentWrapperStyles}>
+              <Outlet />
+            </Box>
+          </Box>
+        ) : (
+          <Outlet />
+        )}
       </Box>
     </Box>
   );
