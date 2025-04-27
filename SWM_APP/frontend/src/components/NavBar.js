@@ -89,7 +89,7 @@ export default function NavBar({ drawerWidth = 240 }) {
     }
   };
 
-  // Content wrapper styles
+ 
   const contentWrapperStyles = {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: theme.shape.borderRadius,
